@@ -1,0 +1,84 @@
+@import "tailwindcss";
+
+@theme {
+  --font-display: "Playfair Display", Georgia, serif;
+  --font-body: "Jost", system-ui, sans-serif;
+
+  --color-wine-950: #120a10;
+  --color-wine-900: #1c1119;
+  --color-wine-850: #22141d;
+  --color-wine-800: #2a1520;
+  --color-wine-700: #3a1e2e;
+  --color-wine-600: #4d2739;
+
+  --color-champagne: #f3e9dc;
+  --color-champagne-dim: #d9c9b8;
+
+  --color-rosegold: #d98a7e;
+  --color-rosegold-deep: #b76e62;
+  --color-rosegold-soft: #e8b0a6;
+
+  --breakpoint-sm: 640px;
+  --breakpoint-md: 768px;
+  --breakpoint-lg: 1024px;
+  --breakpoint-xl: 1280px;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html {
+  background: var(--color-wine-950);
+}
+
+body {
+  margin: 0;
+  min-width: 320px;
+  background: var(--color-wine-950);
+  color: var(--color-champagne);
+  font-family: var(--font-body);
+  font-weight: 300;
+  text-rendering: geometricPrecision;
+  -webkit-font-smoothing: antialiased;
+}
+
+img,
+svg,
+video,
+canvas {
+  display: block;
+  max-width: 100%;
+}
+
+button,
+a,
+input,
+textarea,
+select {
+  font: inherit;
+}
+
+button,
+a {
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* Scrollbar discreto no carrossel de suítes */
+.no-scrollbar {
+  scrollbar-width: none;
+}
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    scroll-behavior: auto !important;
+    transition-duration: 0.01ms !important;
+  }
+}

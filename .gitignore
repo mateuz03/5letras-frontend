@@ -1,0 +1,13 @@
+# Dependências e build
+node_modules
+dist
+
+# Ambiente
+.env
+.env.*
+
+# Servidores de dev locais
+vite-dev.log
+
+# Backend (repositório próprio: mateuz03/5letras-backend)
+5letras-backend/
