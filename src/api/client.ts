@@ -1,4 +1,7 @@
-const API_URL: string = import.meta.env.VITE_API_URL ?? 'http://localhost:5000';
+// Produção usa a API do Render; dev usa localhost (ou VITE_API_URL no .env)
+const API_URL: string =
+  import.meta.env.VITE_API_URL ??
+  (import.meta.env.PROD ? 'https://fiveletras-backend.onrender.com' : 'http://localhost:5000');
 
 export function getToken(): string | null {
   return localStorage.getItem('5letras.token');
