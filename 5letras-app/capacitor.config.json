@@ -1,0 +1,8 @@
+{
+  "appId": "com.mateus.cincoletras",
+  "appName": "5 Letras",
+  "webDir": "dist",
+  "server": {
+    "url": "https://5-letras-u0x3xmv.verdent.app"
+  }
+}
