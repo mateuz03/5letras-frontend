@@ -34,7 +34,7 @@ function hojeISO() {
 export function MotelDetailPage() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
-  const { user, toggleFavorite } = useAuth();
+  const { user, toggleFavorite, refresh } = useAuth();
   const [motel, setMotel] = useState<Motel | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [period, setPeriod] = useState(PERIODS[0].label);
@@ -83,7 +83,7 @@ export function MotelDetailPage() {
       return;
     }
     try {
-      await api('/api/reservations', {
+      const res = await api<{ pointsEarned: number }>('/api/reservations', {
         method: 'POST',
         body: {
           motel: motel._id,
@@ -94,7 +94,8 @@ export function MotelDetailPage() {
           total: price,
         },
       });
-      navigate('/reservas');
+      await refresh();
+      navigate('/reservas', { state: { pointsEarned: res.pointsEarned ?? 0 } });
     } catch (err) {
       showToast(err instanceof Error ? err.message : 'Erro ao reservar.');
     }

@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useLocation } from 'react-router-dom';
 import { api } from '@/api/client';
 import { useAuth } from '@/context/AuthContext';
 import { PageShell, PageTitle } from '@/sections/Layout';
@@ -18,8 +18,20 @@ interface Reservation {
 
 export function ReservasPage() {
   const { user, loading: authLoading } = useAuth();
+  const location = useLocation();
   const [reservations, setReservations] = useState<Reservation[] | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [toast, setToast] = useState<string | null>(null);
+
+  useEffect(() => {
+    const pts = (location.state as { pointsEarned?: number } | null)?.pointsEarned ?? 0;
+    if (pts > 0) {
+      setToast(`Reserva confirmada! Você ganhou ${pts} pontos.`);
+      window.history.replaceState({}, '');
+      const t = setTimeout(() => setToast(null), 3200);
+      return () => clearTimeout(t);
+    }
+  }, [location.state]);
 
   async function load() {
     try {
@@ -137,6 +149,12 @@ export function ReservasPage() {
           </li>
         ))}
       </ul>
+
+      {toast && (
+        <div role="status" className="fixed inset-x-0 bottom-24 z-50 mx-auto w-fit max-w-[85%] rounded-full border border-rosegold/40 bg-wine-800/95 px-5 py-2.5 text-center text-sm text-champagne shadow-lg backdrop-blur-md">
+          {toast}
+        </div>
+      )}
     </PageShell>
   );
 }
