@@ -11,3 +11,6 @@ vite-dev.log
 
 # Backend (repositório próprio: mateuz03/5letras-backend)
 5letras-backend/
+
+# Wrapper Android/APK (gerado localmente; ícones via 5letras-app/scripts)
+5letras-app/
