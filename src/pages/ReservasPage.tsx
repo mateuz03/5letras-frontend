@@ -13,6 +13,7 @@ interface Reservation {
   total: number;
   status: string;
   bookingDate: string;
+  checkIn?: string;
 }
 
 export function ReservasPage() {
@@ -101,6 +102,12 @@ export function ReservasPage() {
               <div>
                 <p className="text-[10px] tracking-[0.42em] text-rosegold-soft uppercase">Suíte {r.suite?.name}</p>
                 <p className="mt-1 font-display text-lg text-champagne">{r.period?.label}</p>
+                {r.checkIn && (
+                  <p className="mt-0.5 text-xs font-light text-rosegold-soft">
+                    Check-in:{' '}
+                    {new Date(r.checkIn).toLocaleDateString('pt-BR', { weekday: 'short', day: '2-digit', month: 'long' })}
+                  </p>
+                )}
                 <p className="mt-0.5 text-xs font-light text-champagne/50">
                   {new Date(r.bookingDate).toLocaleDateString('pt-BR', { day: '2-digit', month: 'long', year: 'numeric' })}
                 </p>

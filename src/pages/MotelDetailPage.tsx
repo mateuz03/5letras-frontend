@@ -25,6 +25,12 @@ const PERIODS = [
   { label: '12 horas', multiplier: 2.2 },
 ];
 
+function hojeISO() {
+  const d = new Date();
+  const off = d.getTimezoneOffset();
+  return new Date(d.getTime() - off * 60_000).toISOString().slice(0, 10);
+}
+
 export function MotelDetailPage() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
@@ -32,6 +38,7 @@ export function MotelDetailPage() {
   const [motel, setMotel] = useState<Motel | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [period, setPeriod] = useState(PERIODS[0].label);
+  const [checkIn, setCheckIn] = useState(hojeISO);
   const [toast, setToast] = useState<string | null>(null);
   const favorited = user?.favorites.includes(id ?? '') ?? false;
 
@@ -70,6 +77,11 @@ export function MotelDetailPage() {
     if (!motel) return;
     const chosen = PERIODS.find((p) => p.label === period) ?? PERIODS[0];
     const price = Math.round(basePrice * chosen.multiplier);
+    const checkInAt = new Date(`${checkIn}T14:00:00`);
+    if (Number.isNaN(checkInAt.getTime())) {
+      showToast('Escolha uma data de check-in válida.');
+      return;
+    }
     try {
       await api('/api/reservations', {
         method: 'POST',
@@ -78,6 +90,7 @@ export function MotelDetailPage() {
           suite: { suiteId: suiteName, name: suiteName },
           period: { label: chosen.label, price },
           addons: [],
+          checkIn: checkInAt.toISOString(),
           total: price,
         },
       });
@@ -162,6 +175,18 @@ export function MotelDetailPage() {
         )}
         {motel.description && <p className="mt-4 text-sm font-light leading-relaxed text-champagne/70">{motel.description}</p>}
       </motion.div>
+
+      <fieldset className="mt-6 rounded-[20px] border border-rosegold/25 bg-wine-850/80 p-5">
+        <legend className="text-[10px] tracking-[0.3em] text-champagne/50 uppercase">Data do check-in</legend>
+        <input
+          type="date"
+          value={checkIn}
+          min={hojeISO()}
+          onChange={(e) => setCheckIn(e.target.value)}
+          aria-label="Data do check-in"
+          className="mt-2 min-h-[44px] w-full rounded-lg border border-rosegold/30 bg-wine-900/70 px-4 text-sm text-champagne [color-scheme:dark] focus:border-rosegold focus:outline-none focus-visible:outline focus-visible:outline-1 focus-visible:outline-rosegold"
+        />
+      </fieldset>
 
       <h2 className="mt-8 text-xs font-normal tracking-[0.38em] text-rosegold uppercase">Suítes disponíveis</h2>
 
