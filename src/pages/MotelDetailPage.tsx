@@ -12,6 +12,7 @@ interface Motel {
   name: string;
   location: string;
   rating: number;
+  image?: string;
   description?: string;
   price?: string;
   categories?: string[];
@@ -108,6 +109,16 @@ export function MotelDetailPage() {
   return (
     <PageShell>
       <div className="relative -mx-5 mb-5 h-56 overflow-hidden bg-[radial-gradient(110%_90%_at_75%_15%,#4d2739_0%,#2a1520_45%,#170d14_100%)]">
+        {motel.image && (
+          <img
+            src={motel.image}
+            alt={motel.name}
+            className="absolute inset-0 h-full w-full object-cover"
+            onError={(e) => {
+              e.currentTarget.style.display = 'none';
+            }}
+          />
+        )}
         <div className="absolute inset-0 bg-[radial-gradient(35%_25%_at_70%_35%,rgba(217,138,126,0.45),transparent_70%)]" aria-hidden="true" />
         <div className="absolute inset-0 bg-[linear-gradient(180deg,transparent_40%,#1c1119_100%)]" aria-hidden="true" />
         <button

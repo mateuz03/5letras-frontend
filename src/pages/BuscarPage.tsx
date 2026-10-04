@@ -95,6 +95,17 @@ export function BuscarPage() {
               className="group relative flex w-full cursor-pointer items-stretch overflow-hidden rounded-[20px] border border-rosegold/25 bg-wine-850/80 text-left transition-colors duration-300 hover:border-rosegold/60 focus-visible:outline focus-visible:outline-1 focus-visible:outline-rosegold"
             >
               <div className="relative w-28 shrink-0 bg-[radial-gradient(100%_100%_at_70%_20%,#4d2739,#22141d)]" aria-hidden="true">
+                {motel.image && (
+                  <img
+                    src={motel.image}
+                    alt=""
+                    loading="lazy"
+                    className="absolute inset-0 h-full w-full object-cover"
+                    onError={(e) => {
+                      e.currentTarget.style.display = 'none';
+                    }}
+                  />
+                )}
                 <div className="absolute inset-0 bg-[radial-gradient(40%_30%_at_50%_45%,rgba(217,138,126,0.4),transparent_75%)]" />
               </div>
               <button

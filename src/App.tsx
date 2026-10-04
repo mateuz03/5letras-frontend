@@ -12,21 +12,21 @@ import { PerfilPage } from '@/pages/PerfilPage';
 import { SuportePage } from '@/pages/SuportePage';
 
 /*
- * Substituto visual do fundo fotográfico do hero (foto da suíte à direita,
- * dissolvendo no bordô) — geração de imagens indisponível no momento.
- * Recrea o clima do comp com camadas de gradiente e vinheta.
+ * Fundo fotográfico do hero: foto real da suíte (self-hosted em /images),
+ * com camadas de gradiente para fundir com o bordô e garantir legibilidade.
  */
 function HeroBackdrop() {
   return (
     <div className="pointer-events-none absolute inset-x-0 top-0 h-[420px] overflow-hidden" aria-hidden="true">
-      {/* Foto-substituto: cena quente à direita, escurecendo à esquerda */}
-      <div className="absolute inset-0 bg-[radial-gradient(85%_70%_at_88%_18%,#5a2c3d_0%,#3a1e2e_34%,#22141d_62%,#1c1119_88%)]" />
-      <div className="absolute inset-0 bg-[radial-gradient(30%_22%_at_78%_26%,rgba(243,233,220,0.22),transparent_70%)]" />
-      <div className="absolute inset-0 bg-[radial-gradient(22%_16%_at_92%_44%,rgba(217,138,126,0.35),transparent_75%)]" />
-      <div className="absolute inset-0 bg-[radial-gradient(18%_12%_at_70%_12%,rgba(217,138,126,0.22),transparent_75%)]" />
+      <img
+        src="/images/hero-suite-night.jpg"
+        alt=""
+        loading="eager"
+        className="absolute inset-0 h-full w-full object-cover"
+      />
       {/* Vinheta e fusão com o fundo */}
       <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(18,10,16,0.55)_0%,transparent_30%,transparent_55%,#120a10_100%)]" />
-      <div className="absolute inset-0 bg-[linear-gradient(90deg,#120a10_0%,rgba(18,10,16,0.4)_30%,transparent_60%)]" />
+      <div className="absolute inset-0 bg-[linear-gradient(90deg,#120a10_0%,rgba(18,10,16,0.4)_30%,rgba(18,10,16,0.15)_60%,transparent_80%)]" />
     </div>
   );
 }

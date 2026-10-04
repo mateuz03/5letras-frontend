@@ -18,9 +18,20 @@ type ArtVariant = 'desejo' | 'intima' | 'panoramica';
 const ART_CYCLE: ArtVariant[] = ['desejo', 'intima', 'panoramica'];
 
 /*
- * Substitutos visuais das fotos de suíte (geração de imagens indisponível no
- * momento). Cada variante recria o clima da foto do comp com gradientes CSS.
- * Quando houver fotos reais, trocar por <img> mantendo o mesmo contêiner.
+ * Fotos reais das suítes (self-hosted em /images; créditos no MANIFEST.md).
+ * Suítes sem foto própria (ex.: Champagne, Bordeaux) caem no ciclo de arte CSS.
+ */
+const SUITE_PHOTOS: Record<string, ArtVariant> = {
+  Desejo: 'desejo',
+  Íntima: 'intima',
+  'Panorâmica': 'panoramica',
+  Champagne: 'panoramica',
+  Bordeaux: 'intima',
+};
+
+/*
+ * Arte CSS de fallback (suíte sem foto ou imagem ainda não carregada).
+ * Cada variante recria o clima da foto do comp com gradientes em camadas.
  */
 function SuiteArt({ variant }: { variant: ArtVariant }) {
   const base =
@@ -59,7 +70,8 @@ function SuiteArt({ variant }: { variant: ArtVariant }) {
 function SuiteCard({ suite, index }: { suite: FeaturedSuite; index: number }) {
   const navigate = useNavigate();
   const { user, toggleFavorite } = useAuth();
-  const art = ART_CYCLE[index % ART_CYCLE.length];
+  const art = SUITE_PHOTOS[suite.suiteName] ?? ART_CYCLE[index % ART_CYCLE.length];
+  const photoUrl = `/images/suite-${art}.jpg`;
   const favorited = user?.favorites.includes(suite.motelId) ?? false;
 
   async function handleFavorite(e: React.MouseEvent) {
@@ -85,6 +97,15 @@ function SuiteCard({ suite, index }: { suite: FeaturedSuite; index: number }) {
     >
       <div className="relative h-[240px] overflow-hidden">
         <SuiteArt variant={art} />
+        <img
+          src={photoUrl}
+          alt={`Suíte ${suite.suiteName}`}
+          loading="lazy"
+          className="absolute inset-0 h-full w-full object-cover transition-transform duration-[1200ms] ease-out group-hover:scale-[1.04]"
+          onError={(e) => {
+            e.currentTarget.style.display = 'none';
+          }}
+        />
         <button
           type="button"
           aria-label={`Favoritar ${suite.suiteName} do ${suite.motelName}`}
