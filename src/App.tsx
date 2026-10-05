@@ -10,6 +10,7 @@ import { ReservasPage } from '@/pages/ReservasPage';
 import { RecompensasPage } from '@/pages/RecompensasPage';
 import { PerfilPage } from '@/pages/PerfilPage';
 import { SuportePage } from '@/pages/SuportePage';
+import { FavoritosPage } from '@/pages/FavoritosPage';
 
 /*
  * Fundo fotográfico do hero: foto real da suíte (self-hosted em /images),
@@ -67,6 +68,7 @@ export default function App() {
             <Route path="/motel/:id" element={<MotelDetailPage />} />
             <Route path="/reservas" element={<ReservasPage />} />
             <Route path="/recompensas" element={<RecompensasPage />} />
+            <Route path="/favoritos" element={<FavoritosPage />} />
             <Route path="/perfil" element={<PerfilPage />} />
             <Route path="/suporte" element={<SuportePage />} />
             <Route path="*" element={<Navigate to="/" replace />} />
