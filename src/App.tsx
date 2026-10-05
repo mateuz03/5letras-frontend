@@ -9,6 +9,7 @@ import { LoginPage } from '@/pages/LoginPage';
 import { BuscarPage } from '@/pages/BuscarPage';
 import { MotelDetailPage } from '@/pages/MotelDetailPage';
 import { ReservasPage } from '@/pages/ReservasPage';
+import { ReservaDetailPage } from '@/pages/ReservaDetailPage';
 import { RecompensasPage } from '@/pages/RecompensasPage';
 import { PerfilPage } from '@/pages/PerfilPage';
 import { SuportePage } from '@/pages/SuportePage';
@@ -78,6 +79,7 @@ export default function App() {
             <Route path="/buscar" element={<BuscarPage />} />
             <Route path="/motel/:id" element={<MotelDetailPage />} />
             <Route path="/reservas" element={<ReservasPage />} />
+            <Route path="/reservas/:id" element={<ReservaDetailPage />} />
             <Route path="/recompensas" element={<RecompensasPage />} />
             <Route path="/favoritos" element={<FavoritosPage />} />
             <Route path="/avaliar" element={<AvaliarPage />} />

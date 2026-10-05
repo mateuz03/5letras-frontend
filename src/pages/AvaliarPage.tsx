@@ -10,6 +10,7 @@ interface ReviewState {
   motelId: string;
   motelName: string;
   suiteName: string;
+  returnTo?: string;
 }
 
 function StarRatingInput({ value, onChange }: { value: number; onChange: (v: number) => void }) {
@@ -79,7 +80,7 @@ export function AvaliarPage() {
           suiteName: reviewState.suiteName,
         },
       });
-      navigate('/reservas', { state: { reviewSent: true } });
+      navigate(reviewState.returnTo ?? '/reservas', { state: { reviewSent: true } });
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Erro ao enviar avaliação.');
     } finally {

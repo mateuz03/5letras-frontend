@@ -147,7 +147,19 @@ export function ReservasPage() {
 
       <ul className="space-y-4">
         {reservations?.map((r) => (
-          <li key={r._id} className="rounded-[20px] border border-rosegold/25 bg-wine-850/80 p-5">
+          <li
+            key={r._id}
+            role="button"
+            tabIndex={0}
+            onClick={() => navigate(`/reservas/${r._id}`)}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter' || e.key === ' ') {
+                e.preventDefault();
+                navigate(`/reservas/${r._id}`);
+              }
+            }}
+            className="cursor-pointer rounded-[20px] border border-rosegold/25 bg-wine-850/80 p-5 transition-colors duration-300 hover:border-rosegold/60 focus-visible:outline focus-visible:outline-1 focus-visible:outline-rosegold"
+          >
             <div className="flex items-start justify-between gap-3">
               <div>
                 <p className="text-[10px] tracking-[0.42em] text-rosegold-soft uppercase">Suíte {r.suite?.name}</p>
@@ -179,7 +191,10 @@ export function ReservasPage() {
               {podeAvaliar(r) && (
                 <button
                   type="button"
-                  onClick={() => avaliar(r)}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    avaliar(r);
+                  }}
                   className="min-h-[40px] w-full rounded-xl bg-rosegold text-xs font-normal tracking-[0.24em] text-wine-950 uppercase transition-colors duration-300 hover:bg-rosegold-soft focus-visible:outline focus-visible:outline-1 focus-visible:outline-champagne"
                 >
                   Avaliar estadia
@@ -188,7 +203,10 @@ export function ReservasPage() {
               {r.status === 'Confirmada' && (
                 <button
                   type="button"
-                  onClick={() => cancelar(r._id)}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    cancelar(r._id);
+                  }}
                   className="min-h-[40px] w-full rounded-xl border border-rosegold/40 text-xs tracking-[0.24em] text-rosegold uppercase transition-colors duration-300 hover:bg-wine-800 focus-visible:outline focus-visible:outline-1 focus-visible:outline-rosegold"
                 >
                   Cancelar reserva
