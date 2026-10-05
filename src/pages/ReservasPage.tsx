@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { Link, useLocation } from 'react-router-dom';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { api } from '@/api/client';
 import { useAuth } from '@/context/AuthContext';
 import { PageShell, PageTitle } from '@/sections/Layout';
@@ -7,7 +7,7 @@ import { formatPrice } from '@/data/suites';
 
 interface Reservation {
   _id: string;
-  motel: string;
+  motel: { _id: string; name: string; location: string; image?: string } | string;
   suite: { name: string };
   period: { label: string; price: number };
   total: number;
@@ -16,17 +16,30 @@ interface Reservation {
   checkIn?: string;
 }
 
+interface Review {
+  _id: string;
+  reservation?: string;
+}
+
 export function ReservasPage() {
   const { user, loading: authLoading } = useAuth();
   const location = useLocation();
+  const navigate = useNavigate();
   const [reservations, setReservations] = useState<Reservation[] | null>(null);
+  const [reviews, setReviews] = useState<Review[]>([]);
   const [error, setError] = useState<string | null>(null);
   const [toast, setToast] = useState<string | null>(null);
 
   useEffect(() => {
-    const pts = (location.state as { pointsEarned?: number } | null)?.pointsEarned ?? 0;
-    if (pts > 0) {
-      setToast(`Reserva confirmada! Você ganhou ${pts} pontos.`);
+    const state = location.state as { pointsEarned?: number; reviewSent?: boolean } | null;
+    if (state?.pointsEarned) {
+      setToast(`Reserva confirmada! Você ganhou ${state.pointsEarned} pontos.`);
+      window.history.replaceState({}, '');
+      const t = setTimeout(() => setToast(null), 3200);
+      return () => clearTimeout(t);
+    }
+    if (state?.reviewSent) {
+      setToast('Obrigado! Sua avaliação foi enviada.');
       window.history.replaceState({}, '');
       const t = setTimeout(() => setToast(null), 3200);
       return () => clearTimeout(t);
@@ -35,8 +48,12 @@ export function ReservasPage() {
 
   async function load() {
     try {
-      const res = await api<Reservation[]>('/api/reservations/my-reservations');
+      const [res, rev] = await Promise.all([
+        api<Reservation[]>('/api/reservations/my-reservations'),
+        api<Review[]>('/api/reviews/my-reviews'),
+      ]);
       setReservations(res);
+      setReviews(rev);
       setError(null);
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Erro ao carregar reservas.');
@@ -47,6 +64,27 @@ export function ReservasPage() {
     if (!authLoading && user) void load();
     else if (!authLoading) setReservations([]);
   }, [user, authLoading]);
+
+  function podeAvaliar(r: Reservation) {
+    if (r.status === 'Cancelada') return false;
+    if (!r.checkIn) return false;
+    const checkIn = new Date(r.checkIn);
+    const agora = new Date();
+    const jaAvaliou = reviews.some((rev) => rev.reservation === r._id);
+    return checkIn < agora && !jaAvaliou;
+  }
+
+  function avaliar(r: Reservation) {
+    const motel = typeof r.motel === 'string' ? { _id: r.motel, name: 'Motel' } : r.motel;
+    navigate('/avaliar', {
+      state: {
+        reservationId: r._id,
+        motelId: motel._id,
+        motelName: motel.name,
+        suiteName: r.suite?.name ?? 'Suíte',
+      },
+    });
+  }
 
   async function cancelar(id: string) {
     try {
@@ -137,15 +175,26 @@ export function ReservasPage() {
                 </span>
               </div>
             </div>
-            {r.status === 'Confirmada' && (
-              <button
-                type="button"
-                onClick={() => cancelar(r._id)}
-                className="mt-4 min-h-[40px] w-full rounded-xl border border-rosegold/40 text-xs tracking-[0.24em] text-rosegold uppercase transition-colors duration-300 hover:bg-wine-800 focus-visible:outline focus-visible:outline-1 focus-visible:outline-rosegold"
-              >
-                Cancelar reserva
-              </button>
-            )}
+            <div className="mt-4 space-y-2">
+              {podeAvaliar(r) && (
+                <button
+                  type="button"
+                  onClick={() => avaliar(r)}
+                  className="min-h-[40px] w-full rounded-xl bg-rosegold text-xs font-normal tracking-[0.24em] text-wine-950 uppercase transition-colors duration-300 hover:bg-rosegold-soft focus-visible:outline focus-visible:outline-1 focus-visible:outline-champagne"
+                >
+                  Avaliar estadia
+                </button>
+              )}
+              {r.status === 'Confirmada' && (
+                <button
+                  type="button"
+                  onClick={() => cancelar(r._id)}
+                  className="min-h-[40px] w-full rounded-xl border border-rosegold/40 text-xs tracking-[0.24em] text-rosegold uppercase transition-colors duration-300 hover:bg-wine-800 focus-visible:outline focus-visible:outline-1 focus-visible:outline-rosegold"
+                >
+                  Cancelar reserva
+                </button>
+              )}
+            </div>
           </li>
         ))}
       </ul>

@@ -19,6 +19,15 @@ interface Motel {
   suites?: { name: string; price: number; amenities?: string[] }[];
 }
 
+interface Review {
+  _id: string;
+  rating: number;
+  comment: string;
+  suiteName?: string;
+  createdAt: string;
+  user: { name: string };
+}
+
 const PERIODS = [
   { label: '4 horas', multiplier: 1 },
   { label: '6 horas', multiplier: 1.5 },
@@ -40,6 +49,7 @@ export function MotelDetailPage() {
   const [period, setPeriod] = useState(PERIODS[0].label);
   const [checkIn, setCheckIn] = useState(hojeISO);
   const [toast, setToast] = useState<string | null>(null);
+  const [reviews, setReviews] = useState<Review[]>([]);
   const favorited = user?.favorites.includes(id ?? '') ?? false;
 
   useEffect(() => {
@@ -50,6 +60,10 @@ export function MotelDetailPage() {
         setMotel(found);
       })
       .catch((err) => setError(err instanceof Error ? err.message : 'Erro ao carregar motel.'));
+
+    api<Review[]>(`/api/reviews?motelId=${id}`, { auth: false })
+      .then(setReviews)
+      .catch(() => setReviews([]));
   }, [id]);
 
   function showToast(message: string) {
@@ -254,6 +268,37 @@ export function MotelDetailPage() {
           );
         })}
       </ul>
+
+      <h2 className="mt-8 text-xs font-normal tracking-[0.38em] text-rosegold uppercase">Avaliações</h2>
+      {reviews.length === 0 ? (
+        <p className="mt-3 text-sm font-light text-champagne/55">Nenhuma avaliação ainda. Seja o primeiro a contar sua experiência.</p>
+      ) : (
+        <ul className="mt-4 space-y-4">
+          {reviews.map((review, i) => (
+            <motion.li
+              key={review._id}
+              initial={{ opacity: 0, y: 12 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.4, delay: 0.1 + i * 0.08 }}
+              className="rounded-[20px] border border-rosegold/25 bg-wine-850/80 p-5"
+            >
+              <div className="flex items-center justify-between gap-3">
+                <span className="text-sm font-light text-champagne">{review.user?.name}</span>
+                <span className="flex items-center gap-1 text-xs text-rosegold-soft">
+                  <StarIcon className="h-3 w-3" /> {review.rating}
+                </span>
+              </div>
+              {review.suiteName && (
+                <p className="mt-1 text-[10px] tracking-[0.2em] text-champagne/50 uppercase">Suíte {review.suiteName}</p>
+              )}
+              <p className="mt-2 text-sm font-light leading-relaxed text-champagne/75">{review.comment}</p>
+              <p className="mt-2 text-[10px] text-champagne/40">
+                {new Date(review.createdAt).toLocaleDateString('pt-BR', { month: 'long', year: 'numeric' })}
+              </p>
+            </motion.li>
+          ))}
+        </ul>
+      )}
 
       <Toast message={toast} />
     </PageShell>
