@@ -133,6 +133,12 @@ export function PerfilPage() {
             Editar dados
           </button>
           <Link
+            to="/leaderboard"
+            className="flex min-h-[48px] w-full items-center justify-center rounded-xl border border-rosegold/35 text-xs tracking-[0.24em] text-champagne uppercase transition-colors duration-300 hover:bg-wine-850"
+          >
+            Ranking
+          </Link>
+          <Link
             to="/favoritos"
             className="flex min-h-[48px] w-full items-center justify-center rounded-xl border border-rosegold/35 text-xs tracking-[0.24em] text-champagne uppercase transition-colors duration-300 hover:bg-wine-850"
           >
