@@ -1,6 +1,7 @@
 import { NavLink, useLocation } from 'react-router-dom';
-import { motion } from 'framer-motion';
-import type { ReactNode } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { useEffect, useState, type ReactNode } from 'react';
+import { onApiWaking } from '@/api/client';
 import { HomeIcon, SearchIcon, HeartIcon, TagIcon, UserIcon } from '@/icons';
 
 const tabs = [
@@ -76,5 +77,31 @@ export function Toast({ message }: { message: string | null }) {
     >
       {message}
     </motion.div>
+  );
+}
+
+export function ApiWakingBanner() {
+  const [waking, setWaking] = useState(false);
+
+  useEffect(() => onApiWaking(setWaking), []);
+
+  return (
+    <AnimatePresence>
+      {waking && (
+        <motion.div
+          initial={{ opacity: 0, y: -20 }}
+          animate={{ opacity: 1, y: 0 }}
+          exit={{ opacity: 0, y: -20 }}
+          role="alert"
+          className="fixed inset-x-0 top-3 z-50 mx-auto flex w-fit max-w-[90%] items-center gap-3 rounded-full border border-rosegold/40 bg-wine-800/95 px-5 py-2.5 text-center text-sm text-champagne shadow-lg backdrop-blur-md"
+        >
+          <span className="relative flex h-2 w-2" aria-hidden="true">
+            <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-rosegold opacity-75" />
+            <span className="relative inline-flex h-2 w-2 rounded-full bg-rosegold" />
+          </span>
+          O servidor está acordando… a primeira resposta pode levar até 50 segundos.
+        </motion.div>
+      )}
+    </AnimatePresence>
   );
 }

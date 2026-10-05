@@ -1,6 +1,8 @@
 import { HashRouter, Routes, Route, Navigate, Outlet } from 'react-router-dom';
+import { useEffect } from 'react';
 import { AuthProvider } from '@/context/AuthContext';
-import { BottomNav } from '@/sections/Layout';
+import { BottomNav, ApiWakingBanner } from '@/sections/Layout';
+import { warmUpApi } from '@/api/client';
 import { TopBar, Hero } from '@/sections/Hero';
 import { SuiteCarousel } from '@/sections/Suites';
 import { LoginPage } from '@/pages/LoginPage';
@@ -59,9 +61,16 @@ function Shell() {
 }
 
 export default function App() {
+  useEffect(() => {
+    // Desperta a API do Render cedo (ping /health) para reduzir a espera
+    // da primeira requisição real do usuário.
+    warmUpApi();
+  }, []);
+
   return (
     <HashRouter>
       <AuthProvider>
+        <ApiWakingBanner />
         <Routes>
           <Route element={<Shell />}>
             <Route index element={<HomePage />} />
