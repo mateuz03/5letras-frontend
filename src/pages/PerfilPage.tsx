@@ -11,9 +11,13 @@ export function PerfilPage() {
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [currentPassword, setCurrentPassword] = useState('');
   const [message, setMessage] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
+  const [deleting, setDeleting] = useState(false);
+  const [deletePassword, setDeletePassword] = useState('');
+  const [deleteBusy, setDeleteBusy] = useState(false);
 
   if (loading) {
     return (
@@ -46,25 +50,57 @@ export function PerfilPage() {
 
   async function salvar(e: FormEvent) {
     e.preventDefault();
-    setBusy(true);
     setError(null);
     setMessage(null);
+
+    const body: Record<string, string> = {};
+    if (name && name !== user!.name) body.name = name;
+    if (email && email !== user!.email) body.email = email;
+    if (password) body.password = password;
+
+    if (Object.keys(body).length === 0) {
+      setError('Altere algum campo antes de salvar.');
+      return;
+    }
+    const mexeuSensivel = Boolean(body.email || body.password);
+    if (mexeuSensivel && !currentPassword) {
+      setError('Informe sua senha atual para alterar e-mail ou senha.');
+      return;
+    }
+    if (mexeuSensivel) body.currentPassword = currentPassword;
+
+    setBusy(true);
     try {
-      const body: Record<string, string> = {};
-      if (name) body.name = name;
-      if (email) body.email = email;
-      if (password) body.password = password;
       await api('/api/users/me', { method: 'PUT', body });
       await refresh();
       setName('');
       setEmail('');
       setPassword('');
+      setCurrentPassword('');
       setMessage('Perfil atualizado com elegância.');
       setEditing(false);
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Erro ao salvar.');
     } finally {
       setBusy(false);
+    }
+  }
+
+  async function excluirConta(e: FormEvent) {
+    e.preventDefault();
+    setError(null);
+    if (!deletePassword) {
+      setError('Informe sua senha para confirmar a exclusão.');
+      return;
+    }
+    setDeleteBusy(true);
+    try {
+      await api('/api/users/me', { method: 'DELETE', body: { currentPassword: deletePassword } });
+      logout();
+      navigate('/');
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Erro ao excluir conta.');
+      setDeleteBusy(false);
     }
   }
 
@@ -102,6 +138,19 @@ export function PerfilPage() {
             <span className="mb-1.5 block text-[11px] tracking-[0.28em] text-champagne/50 uppercase">Nova senha (opcional)</span>
             <input className={inputClass} type="password" value={password} onChange={(e) => setPassword(e.target.value)} placeholder="••••••••" />
           </label>
+          {(email || password) && (
+            <label className="block">
+              <span className="mb-1.5 block text-[11px] tracking-[0.28em] text-rosegold-soft uppercase">Senha atual *</span>
+              <input
+                className={inputClass}
+                type="password"
+                value={currentPassword}
+                onChange={(e) => setCurrentPassword(e.target.value)}
+                placeholder="Obrigatória para alterar e-mail ou senha"
+                autoComplete="current-password"
+              />
+            </label>
+          )}
           {error && <p className="rounded-xl border border-rosegold/40 bg-wine-800/60 px-4 py-3 text-sm text-rosegold-soft">{error}</p>}
           <div className="flex gap-3">
             <button
@@ -116,10 +165,48 @@ export function PerfilPage() {
               onClick={() => {
                 setEditing(false);
                 setError(null);
+                setMessage(null);
               }}
               className="min-h-[44px] flex-1 rounded-xl border border-rosegold/40 text-xs tracking-[0.24em] text-rosegold uppercase transition-colors duration-300 hover:bg-wine-800"
             >
               Cancelar
+            </button>
+          </div>
+        </form>
+      ) : deleting ? (
+        <form onSubmit={excluirConta} className="space-y-4 rounded-[20px] border border-rosegold/40 bg-wine-800/40 p-5">
+          <p className="text-sm font-light leading-relaxed text-champagne/80">
+            Esta ação é <span className="text-rosegold-soft">definitiva</span>: sua conta, reservas e avaliações serão
+            apagados. Informe sua senha para confirmar.
+          </p>
+          <input
+            className={inputClass}
+            type="password"
+            value={deletePassword}
+            onChange={(e) => setDeletePassword(e.target.value)}
+            placeholder="Sua senha"
+            autoComplete="current-password"
+            aria-label="Senha para confirmar exclusão"
+          />
+          {error && <p className="rounded-xl border border-rosegold/40 bg-wine-800/60 px-4 py-3 text-sm text-rosegold-soft">{error}</p>}
+          <div className="flex gap-3">
+            <button
+              type="submit"
+              disabled={deleteBusy}
+              className="min-h-[44px] flex-1 rounded-xl bg-rosegold text-xs font-normal tracking-[0.24em] text-wine-950 uppercase transition-colors duration-300 hover:bg-rosegold-soft disabled:opacity-50"
+            >
+              {deleteBusy ? 'Excluindo…' : 'Excluir definitivamente'}
+            </button>
+            <button
+              type="button"
+              onClick={() => {
+                setDeleting(false);
+                setDeletePassword('');
+                setError(null);
+              }}
+              className="min-h-[44px] flex-1 rounded-xl border border-rosegold/40 text-xs tracking-[0.24em] text-rosegold uppercase transition-colors duration-300 hover:bg-wine-800"
+            >
+              Manter conta
             </button>
           </div>
         </form>
@@ -159,6 +246,17 @@ export function PerfilPage() {
             className="min-h-[48px] w-full rounded-xl border border-transparent text-xs tracking-[0.24em] text-champagne/50 uppercase transition-colors duration-300 hover:text-rosegold"
           >
             Sair da conta
+          </button>
+          <button
+            type="button"
+            onClick={() => {
+              setDeleting(true);
+              setError(null);
+              setMessage(null);
+            }}
+            className="min-h-[44px] w-full rounded-xl border border-transparent text-[11px] tracking-[0.2em] text-champagne/35 uppercase transition-colors duration-300 hover:text-rosegold focus-visible:outline focus-visible:outline-1 focus-visible:outline-rosegold"
+          >
+            Excluir minha conta
           </button>
         </div>
       )}
